@@ -32,6 +32,3 @@ Aplikacja składa się z:
 - Integracja z usługami chmurowymi.
 - Obsługa załączników i mediów.
 - Zaawansowane wyszukiwanie i filtrowanie treści.
-
-## Licencja
-Projekt open-source, dostępny na licencji MIT.
