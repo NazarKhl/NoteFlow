@@ -21,25 +21,10 @@ Aplikacja składa się z:
 - **Baza danych** – przechowuje dokumenty, metadane i użytkowników.
 - **Usługa synchronizacji** – zapewnia aktualizacje w czasie rzeczywistym.
 
-## Instalacja i uruchomienie
-1. **Sklonuj repozytorium:**
-   ```bash
-   git clone https://github.com/twoje-repo/notatki-app.git
-   cd notatki-app
-   ```
-2. **Uruchom mikroserwisy:**
-   ```bash
-   docker-compose up -d
-   ```
-3. **Uruchom frontend:**
-   ```bash
-   npm install && npm start
-   ```
-
 ## Technologie
 - **Frontend:** React / Next.js + Redux + TailwindCSS
 - **Backend:** Web API (dwa mikroserwisy)
-- **Baza danych:** PostgreSQL / MongoDB
+- **Baza danych:** PostgreSQL / MySQL
 - **Autoryzacja:** JWT / OAuth
 - **Komunikacja:** REST API / WebSocket
 
