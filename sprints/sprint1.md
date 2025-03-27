@@ -5,7 +5,7 @@
 - Zdefiniować stack technologiczny dla backendu i bazy danych.
 - Stworzyć podkatalogi w projekcie (client + backend) z podstawową konfiguracją.
 - Przygotować dla zespołu opis projektu oraz wymagania.
-- **Termin realizacji: 27.03.2025**
+- **Termin realizacji: 01.04.2025**
 - **Cel:** Gotowy szkielet projektu z działającym środowiskiem dla zespołu.
 
 ## Kluczowe Decyzje
