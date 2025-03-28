@@ -8,8 +8,7 @@
 ## Zadania
 
 ### **Backend** (Patryk)
-- Utworzenie tabeli `Users` i `Documents` w bazie danych.
-- Implementacja API do tworzenia i pobierania dokumentów.
+- Stworzenie schematu bazy danych (np. w Data Modeler).
 
 ### **Frontend** (Nazar)
 - Stworzenie podstawowego layoutu aplikacji.
@@ -20,6 +19,7 @@
 - Obsługa błędów i walidacja danych.
 
 ## Rezultaty Sprintu
-- Działający backend.
+- Działający backend z bazą danych i API.
 - Podstawowy interfejs użytkownika.
 - Połączenie między frontendem a backendem.
+
