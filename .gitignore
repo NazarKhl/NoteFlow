@@ -1,44 +1,35 @@
-/target/
+# 🟢 Java (Spring Boot)
+target/
 *.jar
 *.war
 *.ear
-*.iml
-
-.idea/
-*.iws
-*.ipr
-/out/
-
-.project
-.classpath
-.settings/
-
-.DS_Store
-
-logs/
-*.log
+.mvn/
+**/logs/
+**/*.log
 hs_err_pid*
+
+# 🟢 Node.js (React + Next.js)
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
+.next/
+out/
 yarn.lock
+package-lock.json
 pnpm-lock.yaml
 
-/build/
-dist/
+# 🟢 IntelliJ IDEA / VS Code
+.idea/
+.vscode/
+*.iml
 
+# 🟢 Системні файли (Windows, macOS, Linux)
+.DS_Store
+Thumbs.db
+
+# 🟢 Секретні файли
 .env
 .env.local
 .env.development
 .env.production
 .env.test
-
-.vscode/
-.idea/
-*.swp
-*.swo
-
-.DS_Store
-Thumbs.db
+config/application.properties
+config/application.yml
