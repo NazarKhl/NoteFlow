@@ -21,11 +21,11 @@ pnpm-lock.yaml
 .vscode/
 *.iml
 
-# 🟢 Системні файли (Windows, macOS, Linux)
+# 🟢 (Windows, macOS, Linux)
 .DS_Store
 Thumbs.db
 
-# 🟢 Секретні файли
+# 🟢 Other
 .env
 .env.local
 .env.development
