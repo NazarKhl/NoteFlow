@@ -1,73 +1,82 @@
 # NoteFlow - Aplikacja do Tworzenia i Zarządzania Notatkami
 
-**NoteFlow** to nowoczesna aplikacja do tworzenia, organizowania i współdzielenia notatek oraz dokumentów. Zainspirowana popularnymi aplikacjami typu Notion, NoteFlow umożliwia łatwe zarządzanie treściami w formie notatek, dokumentów, projektów i folderów, zapewniając pełną synchronizację w czasie rzeczywistym. Idealna do współpracy w zespole, zarówno do codziennego użytku, jak i bardziej złożonych projektów.
+**NoteFlow** to aplikacja webowa do zarządzania notatkami, dokumentami i projektami. Aplikacja jest oparta na architekturze czterowarstwowej, z wykorzystaniem Spring Framework oraz bazuje na mikroserwisach Web API. System wspiera logowanie użytkowników, operacje CRUD na encjach, a także współpracę w czasie rzeczywistym przy użyciu JWT oraz Spring Security.
 
-### Funkcjonalności
+---
 
-- **Tworzenie i edycja notatek**: Łatwe tworzenie notatek i dokumentów w bogatym edytorze tekstu, z możliwością formatowania.
-- **Organizacja treści**: Grupowanie notatek w foldery, przypisywanie tagów i kategoryzowanie dokumentów.
-- **Współpraca w czasie rzeczywistym**: Praca nad notatkami z zespołem w czasie rzeczywistym.
-- **Kontrola wersji**: Historia wersji notatek, możliwość przywrócenia poprzednich wersji.
-- **Zarządzanie dostępem**: Możliwość udostępniania dokumentów z różnymi poziomami uprawnień.
-- **Bezpieczne logowanie**: Autoryzacja użytkowników z użyciem JWT (JSON Web Token) lub OAuth.
+## Wymagania Projektu
 
-### Architektura
+### 1. Web API w Spring
 
-**NoteFlow** jest aplikacją opartą na mikroserwisach, składającą się z dwóch niezależnych Web API:
+Aplikacja składa się z czterech głównych warstw:
 
-- **Serwis Notatek**: Odpowiada za zarządzanie treścią notatek, edycję, wersjonowanie i organizację dokumentów.
-- **Serwis Użytkowników**: Obsługuje logowanie, rejestrację, autoryzację użytkowników oraz zarządzanie uprawnieniami.
+- **Model**: Zawiera klasy encyjne, które odwzorowują struktury danych w bazie.
+- **DAO**: Repozytoria, które umożliwiają operacje na danych.
+- **Service**: Warstwa logiki biznesowej aplikacji.
+- **Web API**: Kontrolery, które umożliwiają dostęp do funkcji aplikacji za pomocą HTTP.
 
-### Technologie
+### Struktura Modelu
 
-- **Frontend**: React, Next.js, Redux, TailwindCSS
-- **Backend**: Dwa mikroserwisy Web API (Node.js/Express)
-- **Baza danych**: PostgreSQL/MySQL
-- **Autoryzacja**: JWT (JSON Web Token) lub OAuth
-- **Komunikacja**: REST API, WebSocket (do współpracy w czasie rzeczywistym)
+Model aplikacji zawiera minimum **osiem klas encyjnych**. Przykład struktur danych:
 
-### Jak działa aplikacja?
+1. **User** - Encja użytkownika z danymi do logowania.
+2. **Note** - Encja notatki, która przechowuje dane użytkownika.
+3. **Tag** - Tag dla notatek.
+4. **Folder** - Folder dla grupowania notatek.
+5. **Document** - Encja dokumentu, przypisanego do folderu.
+6. **Comment** - Komentarz przypisany do notatki.
+7. **Project** - Projekt, do którego przypisane są notatki.
+8. **Role** - Rola użytkownika w systemie (np. autor, administrator).
 
-1. **Logowanie i Rejestracja**:  
-   Użytkownicy mogą tworzyć konto i logować się do aplikacji za pomocą systemu autoryzacji opartego na **JWT** lub **OAuth**. Po zalogowaniu dostępne są funkcje tworzenia i zarządzania notatkami.
+Relacje w modelu danych:
 
-2. **Tworzenie Notatek**:  
-   Każdy użytkownik może tworzyć notatki przy pomocy edytora tekstu, który oferuje możliwość formatowania, dodawania linków, obrazów i tabel. Notatki można zapisywać, edytować i organizować w folderach.
-
-3. **Współpraca w czasie rzeczywistym**:  
-   Dzięki usłudze synchronizacji w czasie rzeczywistym, kilka osób może edytować tę samą notatkę równocześnie. Zmiany są natychmiastowo widoczne dla wszystkich użytkowników.
-
-4. **System Uprawnień**:  
-   Dokumenty i notatki można udostępniać innym użytkownikom. Istnieją różne poziomy uprawnień, takie jak tylko odczyt, edycja czy pełne administrowanie.
-
-5. **Kontrola Wersji**:  
-   Każda zmiana w notatce jest rejestrowana, a użytkownicy mogą przeglądać historię wersji i przywracać poprzednie wersje dokumentów.
-
-### Struktura Projektu
-
-#### Frontend
-
-- **React + Next.js**: Tworzymy dynamiczne interfejsy użytkownika, które są zarówno responsywne, jak i wydajne. Dzięki Next.js aplikacja jest renderowana po stronie serwera, co zapewnia szybki czas ładowania.
-- **Redux**: Używamy Redux do zarządzania stanem aplikacji, co umożliwia centralne przechowywanie danych, takich jak użytkownicy, notatki i sesje.
-- **TailwindCSS**: Stylizacja aplikacji jest realizowana przy pomocy TailwindCSS, co pozwala na szybkie tworzenie nowoczesnych interfejsów użytkownika.
-
-#### Backend
-
-- **Serwis Notatek**: Odpowiada za logikę tworzenia i zarządzania notatkami, wersjonowanie oraz synchronizację dokumentów.
-  - **Endpoints**:
-    - `GET /notes`: Pobierz wszystkie notatki.
-    - `POST /notes`: Tworzenie nowej notatki.
-    - `PUT /notes/{id}`: Edytowanie notatki.
-    - `DELETE /notes/{id}`: Usunięcie notatki.
-    - `GET /notes/{id}/versions`: Historia wersji notatki.
+- **Jeden-do-wielu**: 
+    - Jeden użytkownik może mieć wiele notatek.
+    - Jeden folder może zawierać wiele notatek.
+    - Jeden projekt może mieć wiele notatek.
+    - Jeden tag może być przypisany do wielu notatek.
   
-- **Serwis Użytkowników**: Obsługuje proces logowania, rejestracji oraz zarządzanie użytkownikami i ich uprawnieniami.
-  - **Endpoints**:
-    - `POST /users/register`: Rejestracja nowego użytkownika.
-    - `POST /users/login`: Logowanie użytkownika.
-    - `GET /users/me`: Pobierz informacje o zalogowanym użytkowniku.
-    - `POST /users/logout`: Wylogowanie użytkownika.
-  
-#### Baza danych
+- **Wiele-do-wielu**: 
+    - Notatki mogą mieć przypisane wiele tagów.
 
-- **PostgreSQL/MySQL**: Relacyjna baza danych, która przechowuje informacje o użytkownikach, notatkach, folderach i wersjach dokumentów.
+### Warstwa DAO
+
+Repozytoria (DAO) dla każdej encji zawierają operacje na danych, w tym co najmniej **trzy metody** do pobierania danych z wykorzystaniem specyficznych pól encji. W niektórych przypadkach wykorzystano zapytania **JPQL** lub **Native SQL**.
+
+### Warstwa Serwisów
+
+Serwis implementuje logikę biznesową, w tym operacje CRUD dla przynajmniej pięciu encji, takich jak `User`, `Note`, `Project`, `Tag`, `Folder`. Dodatkowo zaimplementowano transakcję w celu zapewnienia spójności danych.
+
+### Warstwa Web API
+
+Kontrolery w warstwie Web API umożliwiają dostęp do funkcji aplikacji za pomocą odpowiednich endpointów. Każdy kontroler jest zabezpieczony za pomocą **Spring Security**.
+
+Endpointy są odpowiednio zabezpieczone, umożliwiając dostęp tylko dla zalogowanych użytkowników oraz przydzielają odpowiednie role, np. tylko administratorzy mogą usuwać notatki.
+
+### Zabezpieczenia Spring Security
+
+Aplikacja wykorzystuje **Spring Security** do autoryzacji i autentyfikacji użytkowników. Hasła są przechowywane w bazie danych w formie hashowanej (np. BCrypt). Po zalogowaniu użytkownik otrzymuje **JWT**, które służy do autoryzacji dostępu do chronionych endpointów.
+
+### 2. Frontend
+
+Aplikacja frontendowa została stworzona w **React** i komunikuje się z Web API za pomocą **HTTP**. Frontend obsługuje logowanie, które zwraca JWT w przypadku udanej autentykacji.
+
+- **Postman**: Przygotowana kolekcja zapytań HTTP dla Web API.
+- **Logowanie**: Po zalogowaniu użytkownik otrzymuje token JWT, który jest wykorzystywany w dalszej komunikacji z backendem.
+
+Operacje CRUD są dostępne dla dwóch encji:
+
+1. **Notatki** – dla użytkowników zalogowanych.
+2. **Projekty** – dla użytkowników z rolą autora.
+
+### 3. Dodatkowe Funkcjonalności
+
+- **Dziedziczenie**: W bazie danych odwzorowano dziedziczenie encji, np. `User` dziedziczy po `Person`.
+- **Generyczne serwisy**: Została utworzona generyczna klasa serwisu, która jest dziedziczona przez inne serwisy.
+- **Query JPQL i Native SQL**: Wykorzystano zapytania JPQL oraz Native SQL w repozytoriach do specyficznych zapytań.
+- **Lazy i Eager Loading**: Zastosowano odpowiednie strategie ładowania danych, takie jak **Lazy** oraz **Eager Loading**.
+- **Walidacja i obsługa błędów**: Zaimplementowano walidację danych wejściowych oraz odpowiednią obsługę błędów (np. w przypadku nieznalezienia zasobu).
+  
+### Komunikacja między Web API
+
+Utworzono drugi serwis Web API, który komunikuję się z głównym API. Każdy serwis ma po trzy endpointy do komunikacji dwustronnej.
