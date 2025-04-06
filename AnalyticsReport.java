@@ -13,7 +13,6 @@ public class AnalyticsReport {
     private String data;
     private LocalDateTime generated_at;
 
-    //aktud
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
