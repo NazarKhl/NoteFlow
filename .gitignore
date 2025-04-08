@@ -33,3 +33,4 @@ Thumbs.db
 .env.test
 config/application.properties
 config/application.yml
+.resources/

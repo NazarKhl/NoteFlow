@@ -1,7 +1,6 @@
 
 package com.project.java.model;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 import java.util.Date;
 import java.util.List;
@@ -25,19 +24,61 @@ public class Project {
     @OneToMany(mappedBy = "project")
     private List<Folder> folders;
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public Date getStart_date() { return start_date; }
-    public void setStart_date(Date start_date) { this.start_date = start_date; }
-    public Date getEnd_date() { return end_date; }
-    public void setEnd_date(Date end_date) { this.end_date = end_date; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    public List<Folder> getFolders() { return folders; }
-    public void setFolders(List<Folder> folders) { this.folders = folders; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Date getStart_date() {
+        return start_date;
+    }
+
+    public void setStart_date(Date start_date) {
+        this.start_date = start_date;
+    }
+
+    public Date getEnd_date() {
+        return end_date;
+    }
+
+    public void setEnd_date(Date end_date) {
+        this.end_date = end_date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Folder> getFolders() {
+        return folders;
+    }
+
+    public void setFolders(List<Folder> folders) {
+        this.folders = folders;
+    }
+
+    
 }

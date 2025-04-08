@@ -1,6 +1,5 @@
 package com.project.java.model;
 import jakarta.persistence.*;
-import com.project.java.model.Comment;
 import java.util.List;
 @Entity
 @Table(name = "note")
@@ -8,7 +7,7 @@ public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-//
+
     @OneToMany(mappedBy = "note")
     private List<Comment> comments;
 
@@ -37,8 +36,6 @@ public class Note {
     }
 
     @ManyToMany(mappedBy = "notes")
-    private List<Role> roles;
-
-    // Getters and Setters
+    private List<Role> roles;   
 
 }
