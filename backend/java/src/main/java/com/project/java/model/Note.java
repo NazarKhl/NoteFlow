@@ -8,7 +8,7 @@ public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+//
     @OneToMany(mappedBy = "note")
     private List<Comment> comments;
 
