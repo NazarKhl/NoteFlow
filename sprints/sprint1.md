@@ -3,7 +3,7 @@
 ## Cele Sprintu
 
 - Zdefiniować stack technologiczny dla backendu i bazy danych.
-- Stworzyć podkatalogi w projekcie (client + backend) z podstawową konfiguracją.
+- Stworzyć podkatalogi w projekcie (backend.java.src.main.java.com.project.java.client + backend) z podstawową konfiguracją.
 - Przygotować dla zespołu opis projektu oraz wymagania.
 - **Termin realizacji: 01.04.2025**
 - **Cel:** Gotowy szkielet projektu z działającym środowiskiem dla zespołu.

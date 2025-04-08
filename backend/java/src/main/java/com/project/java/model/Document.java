@@ -1,6 +1,7 @@
-import javax.persistence.*;
+package com.project.java.model;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
+import java.time.LocalDateTime;
 @Entity
 @Table(name = "document")
 public class Document {

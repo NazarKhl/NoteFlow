@@ -1,4 +1,6 @@
-import javax.persistence.*;
+package com.project.java.model;
+import   com.project.java.model.Note;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 @Entity
 @Table(name = "comment")

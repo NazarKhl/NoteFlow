@@ -1,4 +1,7 @@
-import javax.persistence.*;
+package com.project.java.model;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 import java.util.List;
 
 @Entity
@@ -28,7 +31,7 @@ public class Role {
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private List<Tag> tags;
+
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -39,6 +42,5 @@ public class Role {
     public void setUser(User user) { this.user = user; }
     public List<Note> getNotes() { return notes; }
     public void setNotes(List<Note> notes) { this.notes = notes; }
-    public List<Tag> getTags() { return tags; }
-    public void setTags(List<Tag> tags) { this.tags = tags; }
+
 }

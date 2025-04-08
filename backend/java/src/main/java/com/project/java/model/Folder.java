@@ -1,4 +1,5 @@
-import javax.persistence.*;
+package com.project.java.model;
+import jakarta.persistence.*;
 import java.util.List;
 
 @Entity

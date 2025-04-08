@@ -1,8 +1,10 @@
-import javax.persistence.*;
+package com.project.java.model;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-
 @Entity
 @Table(name = "user")
 public class User {
@@ -21,23 +23,15 @@ public class User {
     private String address;
     private String person_type;
 
-    @OneToMany(mappedBy = "user")
-    private List<SearchLog> searchLogs;
 
-    @OneToMany(mappedBy = "user")
-    private List<ExternalIntegration> externalIntegrations;
 
     @OneToMany(mappedBy = "user")
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "user")
-    private List<Force> forces;
 
     @OneToMany(mappedBy = "user")
     private List<Document> documents;
 
-    @OneToMany(mappedBy = "user")
-    private List<AnalyticsReport> analyticsReports;
 
     @OneToMany(mappedBy = "user")
     private List<Project> projects;
@@ -68,18 +62,10 @@ public class User {
     public void setAddress(String address) { this.address = address; }
     public String getPerson_type() { return person_type; }
     public void setPerson_type(String person_type) { this.person_type = person_type; }
-    public List<SearchLog> getSearchLogs() { return searchLogs; }
-    public void setSearchLogs(List<SearchLog> searchLogs) { this.searchLogs = searchLogs; }
-    public List<ExternalIntegration> getExternalIntegrations() { return externalIntegrations; }
-    public void setExternalIntegrations(List<ExternalIntegration> externalIntegrations) { this.externalIntegrations = externalIntegrations; }
     public List<Comment> getComments() { return comments; }
     public void setComments(List<Comment> comments) { this.comments = comments; }
-    public List<Force> getForces() { return forces; }
-    public void setForces(List<Force> forces) { this.forces = forces; }
     public List<Document> getDocuments() { return documents; }
     public void setDocuments(List<Document> documents) { this.documents = documents; }
-    public List<AnalyticsReport> getAnalyticsReports() { return analyticsReports; }
-    public void setAnalyticsReports(List<AnalyticsReport> analyticsReports) { this.analyticsReports = analyticsReports; }
     public List<Project> getProjects() { return projects; }
     public void setProjects(List<Project> projects) { this.projects = projects; }
     public List<Role> getRoles() { return roles; }
