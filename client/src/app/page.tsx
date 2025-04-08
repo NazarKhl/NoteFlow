@@ -1,4 +1,4 @@
-"use client"
+"use backend.java.src.main.java.com.project.java.client"
 import { useEffect, useState } from "react";
 import axios from "axios";
 
