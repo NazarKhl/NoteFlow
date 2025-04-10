@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "user")
 public class User {
@@ -16,7 +18,7 @@ public class User {
     private String first_name;
     private String last_name;
     private LocalDateTime created_at;
-    private Boolean is_active;
+    private Boolean isActive;
     private Date birth_date;
     private String address;
     private String person_type;
@@ -33,7 +35,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Project> projects;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Role> roles;
 
@@ -93,14 +95,6 @@ public class User {
         this.created_at = created_at;
     }
 
-    public Boolean getIs_active() {
-        return is_active;
-    }
-
-    public void setIs_active(Boolean is_active) {
-        this.is_active = is_active;
-    }
-
     public Date getBirth_date() {
         return birth_date;
     }
@@ -155,6 +149,14 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
 }
