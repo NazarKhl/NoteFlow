@@ -2,7 +2,6 @@ package com.project.java.controller;
 
 import com.project.java.model.Project;
 import com.project.java.service.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -14,7 +13,6 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @Autowired
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }

@@ -13,9 +13,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByStartDateBetween(Date start, Date end);
 
-    // Native SQL: wyszukiwanie projektów po nazwie
-    @Query(value = "SELECT * FROM project WHERE name LIKE %:keyword%", nativeQuery = true)
-    List<Project> searchByNameNative(@Param("keyword") String keyword);
+    @Query(value = "SELECT * FROM project WHERE name LIKE :keyword", nativeQuery = true)
+    List<Project> searchByName(@Param("keyword") String keyword);
+    
 
 
     List<Project> findAllByOrderByNameAsc();
