@@ -1,12 +1,11 @@
 package com.project.java.controller;
-
-import com.project.java.model.Role;
+import com.project.java.model.Role; // ✅ Twój model!
 import com.project.java.service.RoleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/roles")
