@@ -1,34 +1,31 @@
 package com.project.java.model;
 import jakarta.persistence.*;
+
 import java.util.List;
 
-@Entity
-@Table(name = "roles")
-public class Role {
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Entity
+@Table(name = "role")
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> users;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
     @ManyToMany
     @JoinTable(
-            name = "role_notes",
+            name = "role_note_tag",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "note_id")
     )
     private List<Note> notes;
-
-    // GETTERY I SETTERY
 
     public Long getId() {
         return id;
@@ -46,12 +43,12 @@ public class Role {
         this.name = name;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public User getUser() {
+        return user;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<Note> getNotes() {

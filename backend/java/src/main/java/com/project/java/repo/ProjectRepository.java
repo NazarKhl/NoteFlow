@@ -10,9 +10,13 @@ import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
+
     List<Project> findByStartDateBetween(Date start, Date end);
 
-    // 🔽 Native SQL do wyszukiwania projektów po nazwie
+    // Native SQL: wyszukiwanie projektów po nazwie
     @Query(value = "SELECT * FROM project WHERE name LIKE %:keyword%", nativeQuery = true)
     List<Project> searchByNameNative(@Param("keyword") String keyword);
+
+
+    List<Project> findAllByOrderByNameAsc();
 }

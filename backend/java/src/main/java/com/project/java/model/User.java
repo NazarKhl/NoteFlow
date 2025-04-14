@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Entity
 @Table(name = "user")
 public class User {
@@ -37,7 +36,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Project> projects;
     @JsonIgnore
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "user")
     private List<Role> roles;
 
     public Long getId() {
