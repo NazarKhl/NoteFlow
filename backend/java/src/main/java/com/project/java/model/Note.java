@@ -1,5 +1,6 @@
 package com.project.java.model;
 import jakarta.persistence.*;
+
 import java.util.List;
 @Entity
 @Table(name = "note")
@@ -36,6 +37,5 @@ public class Note {
     }
 
     @ManyToMany(mappedBy = "notes")
-    private List<Role> roles;   
-
+    private List<Role> roles;
 }

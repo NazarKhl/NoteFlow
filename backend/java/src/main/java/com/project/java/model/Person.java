@@ -1,5 +1,6 @@
 package com.project.java.model;
 import jakarta.persistence.*;
+
 import java.util.Date;
 @Entity
 @Table(name = "person")
@@ -55,6 +56,4 @@ public class Person {
     public void setUser(User user) {
         this.user = user;
     }
-
-    
 }
