@@ -1,5 +1,4 @@
 package com.project.java.service;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,7 +7,6 @@ import com.project.java.repo.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
-
 @Service
 public class UserService {
 
