@@ -3,23 +3,28 @@ import jakarta.persistence.*;
 
 
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 @Entity
 @Table(name = "document")
 public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String file_name;
-    private String file_path;
+    @Column(name = "file_name")
+    private String fileName;
+    @Column(name = "filePath")
+    private String filePath;
     private LocalDateTime upload_date;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "folder_id")
+    @JsonBackReference
     private Folder folder;
 
     public Long getId() {
@@ -30,20 +35,20 @@ public class Document {
         this.id = id;
     }
 
-    public String getFile_name() {
-        return file_name;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setFile_name(String file_name) {
-        this.file_name = file_name;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
-    public String getFile_path() {
-        return file_path;
+    public String getFilePath() {
+        return filePath;
     }
 
-    public void setFile_path(String file_path) {
-        this.file_path = file_path;
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public LocalDateTime getUpload_date() {
@@ -70,5 +75,6 @@ public class Document {
         this.folder = folder;
     }
 
+   
     
 }
