@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "role")
@@ -16,6 +17,7 @@ public class Role {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonManagedReference
     @JsonIgnore
     private User user;
 
