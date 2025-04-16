@@ -1,14 +1,13 @@
 package com.project.java.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.project.java.model.User;
 import com.project.java.repo.UserRepository;
-
 import java.util.List;
 import java.util.Optional;
+
 @Service
-public class UserService {
+public class UserService extends BaseService<User, Long> {
 
     private final UserRepository userRepository;
 
@@ -20,7 +19,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<User> getUserById(int id) {
+    public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
@@ -33,7 +32,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(int id) {
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
@@ -51,5 +50,10 @@ public class UserService {
 
     public List<User> getUsersByPersonType(String personType) {
         return userRepository.findByPersonType(personType);
+    }
+
+    @Override
+    protected UserRepository getRepository() {
+        return userRepository;
     }
 }
