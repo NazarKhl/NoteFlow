@@ -1,8 +1,10 @@
 package com.project.java.service;
+
 import com.project.java.model.Person;
 import com.project.java.repo.PersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +12,7 @@ import java.util.Optional;
 @Service
 @Transactional
 public class PersonService {
+
     private final PersonRepository repository;
 
     public PersonService(PersonRepository repository) {
@@ -33,7 +36,6 @@ public class PersonService {
             p.setPersonType(updated.getPersonType());
             p.setBirthDate(updated.getBirthDate());
             p.setAddress(updated.getAddress());
-            p.setUser(updated.getUser());
             return repository.save(p);
         }).orElse(null);
     }

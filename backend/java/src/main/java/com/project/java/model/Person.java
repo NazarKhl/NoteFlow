@@ -1,4 +1,5 @@
 package com.project.java.model;
+
 import jakarta.persistence.*;
 import java.util.Date;
 
@@ -11,42 +12,34 @@ public abstract class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "person_type") // kluczowe!
-    private String person_type;
+    @Column(name = "person_type")
+    private String personType;
 
     @Column(name = "birth_date")
-    private Date birth_date;
+    private Date birthDate;
 
     private String address;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
     // Gettery i settery
-
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
 
-    public String getPerson_type() {
-        return person_type;
+    public String getPersonType() {
+        return personType;
+    }
+    public void setPersonType(String personType) {
+        this.personType = personType;
     }
 
-    public void setPerson_type(String person_type) {
-        this.person_type = person_type;
+    public Date getBirthDate() {
+        return birthDate;
     }
-
-    public Date getBirth_date() {
-        return birth_date;
-    }
-
-    public void setBirth_date(Date birth_date) {
-        this.birth_date = birth_date;
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getAddress() {
@@ -54,13 +47,5 @@ public abstract class Person {
     }
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }
