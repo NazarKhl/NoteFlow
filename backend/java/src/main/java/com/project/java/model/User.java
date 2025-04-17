@@ -10,11 +10,11 @@ import java.util.List;
 public class User extends Person {
 
     private String username;
-    private String password_hash;
+    private String passwordHash;
     private String email;
-    private String first_name;
-    private String last_name;
-    private LocalDateTime created_at;
+    private String firstName;
+    private String lastName;
+    private LocalDateTime createdAt;
     private Boolean isActive;
 
     @OneToMany(mappedBy = "user")
@@ -30,25 +30,24 @@ public class User extends Person {
     @OneToMany(mappedBy = "user")
     private List<Role> roles;
 
-    public Long getId() { return super.getId(); }
-
+    // Gettery i settery
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
-    public String getPassword_hash() { return password_hash; }
-    public void setPassword_hash(String password_hash) { this.password_hash = password_hash; }
+    public String getPasswordHash() { return passwordHash; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getFirst_name() { return first_name; }
-    public void setFirst_name(String first_name) { this.first_name = first_name; }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public String getLast_name() { return last_name; }
-    public void setLast_name(String last_name) { this.last_name = last_name; }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public LocalDateTime getCreated_at() { return created_at; }
-    public void setCreated_at(LocalDateTime created_at) { this.created_at = created_at; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }

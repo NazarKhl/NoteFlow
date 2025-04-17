@@ -1,18 +1,13 @@
 package com.project.java.controller;
-
 import com.project.java.model.Project;
 import com.project.java.service.ProjectService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Date;
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
-
     private final ProjectService projectService;
-
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }
@@ -27,7 +22,6 @@ public class ProjectController {
         // Używamy metody getProjectById z serwisu
         return projectService.getProjectById(id);
     }
-
     @PostMapping
     public Project create(@RequestBody Project project) {
         return projectService.createProject(project);
@@ -37,7 +31,6 @@ public class ProjectController {
     public Project update(@PathVariable Long id, @RequestBody Project project) {
         return projectService.updateProject(id, project);
     }
-
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         projectService.deleteProject(id);

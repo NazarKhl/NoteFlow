@@ -1,12 +1,9 @@
 package com.project.java.controller;
-
 import com.project.java.service.BaseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
-
 public abstract class BaseController<T, ID> {
 
     protected abstract BaseService<T, ID> getBaseService();
@@ -20,7 +17,7 @@ public abstract class BaseController<T, ID> {
     public ResponseEntity<T> getById(@PathVariable ID id) {
         Optional<T> entity = getBaseService().findById(id);
         return entity.map(ResponseEntity::ok)
-                     .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
