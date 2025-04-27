@@ -1,5 +1,4 @@
 package com.project.java.auth;
-
 import com.project.java.service.JwtAuthenticationFilter;
 import com.project.java.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
