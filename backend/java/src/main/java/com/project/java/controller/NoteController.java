@@ -4,7 +4,6 @@ import com.project.java.service.NoteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/note")
 public class NoteController {
@@ -41,7 +40,6 @@ public class NoteController {
         Note updated = service.update(id, note);
         return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

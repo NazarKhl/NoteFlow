@@ -2,8 +2,6 @@ package com.project.java.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,13 +18,11 @@ public class User extends Person {
     private Boolean isActive;
 
     @OneToMany(mappedBy = "user")
-    @JsonManagedReference
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user")
     private List<Document> documents;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Project> projects;
 
