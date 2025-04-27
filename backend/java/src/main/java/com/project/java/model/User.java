@@ -21,11 +21,13 @@ public class User extends Person {
     private Boolean isActive;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user")
     private List<Document> documents;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Project> projects;
 
