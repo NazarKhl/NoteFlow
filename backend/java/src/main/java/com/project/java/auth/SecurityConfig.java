@@ -35,15 +35,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())  // Wyłączenie CSRF
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()               // publiczne endpointy (np. rejestracja, logowanie)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")          // dostęp tylko dla ADMIN
+                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN") // dostęp dla USER i ADMIN
+                        .anyRequest().authenticated()  // Pozostałe wymagają autoryzacji
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Dodanie filtra JWT
 
         return http.build();
     }
@@ -73,4 +73,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
