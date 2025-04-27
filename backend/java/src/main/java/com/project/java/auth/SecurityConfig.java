@@ -19,7 +19,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -36,15 +35,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())  // Wyłączenie CSRF
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()               // publiczne endpointy (np. rejestracja, logowanie)
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")          // dostęp tylko dla ADMIN
-                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN") // dostęp dla USER i ADMIN
-                        .anyRequest().authenticated()  // Pozostałe wymagają autoryzacji
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Dodanie filtra JWT
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -74,3 +73,4 @@ public class SecurityConfig {
         return source;
     }
 }
+
