@@ -1,4 +1,5 @@
 package com.project.java.auth;
+
 import com.project.java.service.JwtAuthenticationFilter;
 import com.project.java.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +16,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-//
+
 import java.util.Arrays;
+
 
 @Configuration
 @EnableWebSecurity
