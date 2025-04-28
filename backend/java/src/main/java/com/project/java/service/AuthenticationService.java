@@ -1,6 +1,7 @@
 package com.project.java.service;
 
 import com.project.java.DTO.AuthResponse;
+import com.project.java.DTO.LoginRequest;
 import com.project.java.DTO.RegisterRequest;
 import com.project.java.model.Role;
 import com.project.java.model.User;
@@ -93,20 +94,17 @@ public class AuthenticationService {
         return new AuthResponse(token);
     }
 
-    public AuthResponse login(Authentication authentication) {
-        /*User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPasswordHash(),
-                user.getRoles().stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                        .collect(Collectors.toSet())
-        );
-
-        String token = jwtService.generateToken(userDetails);*/
-        String token = generateToken(authentication);
-        return new AuthResponse(token);
-    }
+public AuthResponse login(LoginRequest loginRequest) {
+    // 1. Uwierzytelnienie
+    Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(
+            loginRequest.getUsername(),
+            loginRequest.getPassword()
+        )
+    );
+    
+    // 2. Generowanie tokena
+    String token = generateToken(authentication);
+    return new AuthResponse(token);
+}
 }
