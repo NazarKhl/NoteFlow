@@ -2,10 +2,11 @@ package com.project.java.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -20,19 +21,21 @@ public class User extends Person {
     private Boolean isActive;
 
     @OneToMany(mappedBy = "user")
-    @JsonManagedReference
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user")
     private List<Document> documents;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Project> projects;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user")
-    private List<Role> roles;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     // Gettery i settery
     public String getUsername() { return username; }
@@ -65,6 +68,6 @@ public class User extends Person {
     public List<Project> getProjects() { return projects; }
     public void setProjects(List<Project> projects) { this.projects = projects; }
 
-    public List<Role> getRoles() { return roles; }
-    public void setRoles(List<Role> roles) { this.roles = roles; }
+    public Set<Role> getRoles() { return roles; }
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
 }
