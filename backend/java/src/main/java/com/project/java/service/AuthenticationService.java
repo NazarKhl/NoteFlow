@@ -76,7 +76,7 @@ public class AuthenticationService {
         user.setCreatedAt(LocalDateTime.now());
         user.setIsActive(true);
 
-        Optional<Role> defaultRole = roleRepository.findByName("USER");
+        Optional<Role> defaultRole = roleRepository.findByName("ROLE_USER");
         defaultRole.ifPresent(role -> user.setRoles(Collections.singleton(role)));
 
         userRepository.save(user);

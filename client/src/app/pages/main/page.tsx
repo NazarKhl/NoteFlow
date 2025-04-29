@@ -14,13 +14,13 @@ export default function HomePage() {
         <div className="flex space-x-4">
           <button 
             onClick={() => router.push('/pages/login')}
-            className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
           >
             Zaloguj się
           </button>
           <button
             onClick={() => router.push('/pages/register')}
-            className="px-4 py-2 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition-colors cursor-pointer"
           >
             Załóż konto
           </button>
@@ -37,7 +37,7 @@ export default function HomePage() {
           <div className="flex justify-center space-x-4">
             <button
               onClick={() => router.push('/pages/register')}
-              className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors cursor-pointer"
             >
               Rozpocznij teraz
             </button>
@@ -69,7 +69,7 @@ export default function HomePage() {
           <p className="text-gray-300 mb-6">Dołącz do tysięcy zadowolonych użytkowników</p>
           <button
             onClick={() => router.push('/pages/register')}
-            className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors cursor-pointer"
           >
             Załóż darmowe konto
           </button>

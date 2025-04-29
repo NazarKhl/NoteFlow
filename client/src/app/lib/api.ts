@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { getToken } from './auth'; // Importowanie funkcji getToken z auth.ts
-
+import { getToken } from './auth'; 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api', // Zamień na URL swojego backendu
+  baseURL: 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
