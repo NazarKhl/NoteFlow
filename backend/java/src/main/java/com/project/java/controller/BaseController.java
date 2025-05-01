@@ -1,5 +1,10 @@
 package com.project.java.controller;
+import com.project.java.model.User;
 import com.project.java.service.BaseService;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -7,6 +12,13 @@ import java.util.Optional;
 public abstract class BaseController<T, ID> {
 
     protected abstract BaseService<T, ID> getBaseService();
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+        String username = jwt.getSubject(); 
+        return ResponseEntity.ok("Zalogowany użytkownik: " + username);
+    }
+    
 
     @GetMapping
     public ResponseEntity<List<T>> getAll() {

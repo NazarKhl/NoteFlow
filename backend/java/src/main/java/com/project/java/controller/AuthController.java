@@ -23,11 +23,6 @@ public class AuthController {
         return authenticationService.register(request);
     }
 
-    /*@PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest request) {
-        return authenticationService.login(request);
-    }*/
-
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest loginRequest) {
         return authenticationService.login(loginRequest);

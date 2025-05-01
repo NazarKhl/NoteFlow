@@ -26,11 +26,11 @@ const DashboardPage = () => {
       try {
         const token = getToken();
         if (!token) {
-        //   router.push('/pages/login');
+          router.push('/pages/login');
           return;
         }
 
-        const userResponse = await axios.get('/user/me', {
+        const userResponse = await axios.get('users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(userResponse.data);
@@ -40,7 +40,7 @@ const DashboardPage = () => {
         });
         setProjects(projectsResponse.data);
 
-        const notesResponse = await axios.get('/notes', {
+        const notesResponse = await axios.get('/note', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setNotes(notesResponse.data);
@@ -73,15 +73,15 @@ const DashboardPage = () => {
     router.push('/pages/login');
   };
 
-//   if (!user) {
-//     return (
-//       <div className="min-h-screen flex justify-center items-center bg-gray-50">
-//         <div className="animate-pulse flex space-x-4">
-//           <div className="rounded-full h-12 w-12 bg-blue-400"></div>
-//         </div>
-//       </div>
-//     );
-//   }
+  if (!user) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gray-50">
+        <div className="animate-pulse flex space-x-4">
+          <div className="rounded-full h-12 w-12 bg-blue-400"></div>
+        </div>
+      </div>
+    );
+  }
 
   const renderSection = () => {
     switch (activeSection) {
@@ -137,7 +137,7 @@ const DashboardPage = () => {
       <main className="flex-1 p-6 lg:p-8">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-2xl font-light text-gray-800">Witaj, <span className="font-medium">{/*{user.firstName}*/}</span></h1>
+            <h1 className="text-2xl font-light text-gray-800">Witaj, <span className="font-medium">{user.firstName}</span></h1>
             {/* <p className="text-sm text-gray-500 mt-1">Dziś jest {new Date().toLocaleDateString('pl-PL')}</p> */}
           </div>
           <button 

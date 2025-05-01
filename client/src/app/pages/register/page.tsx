@@ -29,7 +29,7 @@ export default function RegisterPage() {
     try {
       await axios.post('/auth/register', payload)
       alert('Rejestracja zakończona sukcesem!')
-      router.push('/login')
+      router.push('/pages/dashboard')
     } catch (error) {
       alert('Błąd rejestracji')
     }
