@@ -2,11 +2,20 @@ package com.project.java.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table(name = "project")
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class,
+  property = "id",
+  scope = Project.class)
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,21 +23,22 @@ public class Project {
 
     private String name;
     private String description;
-
+    
     @Temporal(TemporalType.DATE)
     private Date startDate;
-
+    
     @Temporal(TemporalType.DATE)
     private Date endDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private User user;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Folder> folders;
+    @JsonManagedReference
+    private List<Folder> folders = new ArrayList<>();
 
-    // Gettery i settery
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
