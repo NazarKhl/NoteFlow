@@ -39,6 +39,8 @@ const DashboardPage = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProjects(projectsResponse.data);
+        console.log('USTAWIONE PROJEKTY:', projectsResponse.data);
+
 
         const notesResponse = await axios.get('/note', {
           headers: { Authorization: `Bearer ${token}` },
@@ -134,10 +136,10 @@ const DashboardPage = () => {
     <div className="min-h-screen flex bg-gray-50">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
       
-      <main className="flex-1 p-6 lg:p-8">
+      <main className="flex-1 p-6 lg:p-8 ml-[250px]"> {/* Zmiana tutaj, dodajemy margines 40px */}
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-2xl font-light text-gray-800">Witaj, <span className="font-medium">{user.firstName}</span></h1>
+            <h1 className="text-2xl font-light text-gray-800">Witaj <span className="font-medium">{user.username}</span></h1>
             {/* <p className="text-sm text-gray-500 mt-1">Dziś jest {new Date().toLocaleDateString('pl-PL')}</p> */}
           </div>
           <button 

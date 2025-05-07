@@ -1,6 +1,8 @@
 package com.project.java.model;
 import jakarta.persistence.*;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 @Entity
 @Table(name = "folder")
 public class Folder {
@@ -11,6 +13,7 @@ public class Folder {
     private String name;
 
     @ManyToOne
+    @JsonBackReference 
     @JoinColumn(name = "project_id")
     private Project project;
 

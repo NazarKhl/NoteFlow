@@ -1,15 +1,16 @@
 package com.project.java.model;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "user")
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class,
+  property = "id",
+  scope = User.class)
 public class User extends Person {
 
     private String username;
@@ -21,20 +22,24 @@ public class User extends Person {
     private Boolean isActive;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Document> documents;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Project> projects;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @JsonIdentityReference(alwaysAsId = true)
     private Set<Role> roles = new HashSet<>();
 
     // Gettery i settery
