@@ -2,257 +2,174 @@
 
 import { useState, useEffect } from 'react';
 
-type Note = {
+// Typy danych
+type Comment = {
   id: number;
-  comments?: {
-    id: number;
-    content: string;
-    // inne pola komentarza
-  }[];
-  roles?: {
-    id: number;
-    name: string;
-  }[];
+  content: string;
+  createdAt: string;
 };
 
-export default function NotesPage() {
+type Note = {
+  id: number;
+  title: string;
+  content: string;
+  createdAt: string;
+  comments: Comment[];
+};
+
+// Komponent karty notatki
+function NoteCard({ note }: { note: Note }) {
+  return (
+    <div className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+      <h2 className="font-bold text-lg mb-2">{note.title || 'Untitled Note'}</h2>
+      <p className="text-gray-700 mb-3">{note.content}</p>
+      
+      <div className="border-t pt-2">
+        <h3 className="text-sm font-semibold text-gray-500">Comments:</h3>
+        {note.comments?.length > 0 ? (
+          <ul className="mt-1 space-y-1">
+            {note.comments.map(comment => (
+              <li key={comment.id} className="text-sm p-2 bg-gray-50 rounded">
+                <p>{comment.content}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {new Date(comment.createdAt).toLocaleDateString()}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-gray-400 italic">No comments</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Główny komponent strony
+export default function NotesDashboard() {
   const [notes, setNotes] = useState<Note[]>([]);
-  const [newNote, setNewNote] = useState<Partial<Note>>({});
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [newNote, setNewNote] = useState({ title: '', content: '' });
+
+  // Funkcja walidująca strukturę notatki
+  const isValidNote = (data: any): data is Note => {
+    return (
+      data &&
+      typeof data.id === 'number' &&
+      typeof data.title === 'string' &&
+      typeof data.content === 'string' &&
+      Array.isArray(data.comments)
+    );
+  };
+
+  // Funkcja walidująca tablicę notatek
+  const isValidNotesArray = (data: any): data is Note[] => {
+    if (!Array.isArray(data)) {
+      console.error('Expected array but got:', data);
+      return false;
+    }
+    
+    const invalidItems = data.filter(item => !isValidNote(item));
+    if (invalidItems.length > 0) {
+      console.error('Invalid note items:', invalidItems);
+      return false;
+    }
+    
+    return true;
+  };
 
   // Pobieranie notatek
-  const fetchNotes = async (keyword = '') => {
+  const fetchNotes = async () => {
     setIsLoading(true);
     setError(null);
+    
     try {
-      const url = keyword
-        ? `http://localhost:8080/api/note/comment-keyword?kw=${encodeURIComponent(keyword)}`
-        : 'http://localhost:8080/api/note';
+      const response = await fetch('http://localhost:8080/api/note');
       
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch notes');
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+
       const data = await response.json();
+      
+      if (!isValidNotesArray(data)) {
+        throw new Error('Invalid data structure from API');
+      }
+
       setNotes(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      console.error('Failed to fetch notes:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      setNotes([]); // Ustaw pustą tablicę jako fallback
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Efekt pobierający notatki przy pierwszym renderze
   useEffect(() => {
     fetchNotes();
   }, []);
 
-  // Tworzenie nowej notatki
-  const handleCreate = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('http://localhost:8080/api/note', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newNote),
-      });
-
-      if (!response.ok) throw new Error('Failed to create note');
-      
-      await fetchNotes();
-      setNewNote({});
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
+  // Funkcja renderująca notatki z zabezpieczeniem
+  const renderNotes = () => {
+    if (!Array.isArray(notes)) {
+      console.error('Notes is not an array:', notes);
+      return (
+        <div className="text-red-500 p-4 bg-red-50 rounded-lg">
+          Critical error: Notes data is not in expected format
+        </div>
+      );
     }
-  };
 
-  // Aktualizacja notatki
-  const handleUpdate = async () => {
-    if (!editingNote) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`http://localhost:8080/api/note/${editingNote.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editingNote),
-      });
-
-      if (!response.ok) throw new Error('Failed to update note');
-      
-      await fetchNotes();
-      setEditingNote(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
+    if (notes.length === 0) {
+      return (
+        <div className="text-center py-8 text-gray-500">
+          No notes found. Create your first note.
+        </div>
+      );
     }
-  };
 
-  // Usuwanie notatki
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this note?')) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`http://localhost:8080/api/note/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) throw new Error('Failed to delete note');
-      
-      await fetchNotes();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Wyszukiwanie po słowie kluczowym w komentarzach
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchNotes(searchKeyword);
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {notes.map((note) => (
+          <NoteCard key={note.id} note={note} />
+        ))}
+      </div>
+    );
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6">Notes Management</h1>
+    <div className="container mx-auto p-4 max-w-7xl">
+      <h1 className="text-3xl font-bold mb-6">Notes Dashboard</h1>
 
-      {/* Wyszukiwarka */}
-      <form onSubmit={handleSearch} className="mb-6">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search by comment keyword..."
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            className="flex-1 p-2 border rounded"
-          />
-          <button 
-            type="submit" 
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-            disabled={isLoading}
-          >
-            Search
-          </button>
-          <button 
-            type="button" 
-            onClick={() => {
-              setSearchKeyword('');
-              fetchNotes();
-            }}
-            className="px-4 py-2 bg-gray-200 rounded"
-            disabled={isLoading}
-          >
-            Clear
-          </button>
-        </div>
-      </form>
-
+      {/* Sekcja błędów */}
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      {/* Formularz tworzenia/edycji */}
-      <div className="mb-8 p-4 bg-white rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-3">
-          {editingNote ? 'Edit Note' : 'Create New Note'}
-        </h2>
-        <div className="space-y-3">
-          {/* Tutaj możesz dodać pola formularza w zależności od potrzeb */}
-          <p className="text-gray-500">Note form fields would go here</p>
-          
-          <div className="flex justify-end space-x-2">
-            {editingNote && (
-              <button
-                onClick={() => setEditingNote(null)}
-                className="px-3 py-1 bg-gray-300 rounded"
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-            )}
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="font-medium text-red-800">Error</h3>
+              <p className="text-red-600 mt-1">{error}</p>
+            </div>
             <button
-              onClick={editingNote ? handleUpdate : handleCreate}
-              className="px-3 py-1 bg-green-600 text-white rounded"
-              disabled={isLoading}
+              onClick={() => setError(null)}
+              className="text-red-500 hover:text-red-700"
             >
-              {isLoading ? 'Processing...' : editingNote ? 'Update' : 'Create'}
+              ×
             </button>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Lista notatek */}
-      <div className="space-y-4">
-        {isLoading ? (
-          <p className="text-center py-4">Loading notes...</p>
-        ) : notes.length === 0 ? (
-          <p className="text-center py-4">No notes found</p>
-        ) : (
-          notes.map((note) => (
-            <div key={note.id} className="bg-white rounded-lg shadow p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-semibold">Note #{note.id}</h2>
-                  
-                  {/* Komentarze */}
-                  {note.comments && note.comments.length > 0 && (
-                    <div className="mt-2">
-                      <h3 className="font-medium">Comments:</h3>
-                      <ul className="list-disc pl-5">
-                        {note.comments.map(comment => (
-                          <li key={comment.id}>{comment.content}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {/* Role */}
-                  {note.roles && note.roles.length > 0 && (
-                    <div className="mt-2">
-                      <h3 className="font-medium">Roles:</h3>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {note.roles.map(role => (
-                          <span key={role.id} className="px-2 py-1 bg-gray-100 rounded text-sm">
-                            {role.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setEditingNote(note)}
-                    className="px-3 py-1 bg-yellow-500 text-white rounded text-sm"
-                    disabled={isLoading}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(note.id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded text-sm"
-                    disabled={isLoading}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      {/* Główna zawartość */}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      ) : (
+        renderNotes()
+      )}
     </div>
   );
 }

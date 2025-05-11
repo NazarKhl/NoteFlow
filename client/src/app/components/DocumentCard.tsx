@@ -73,7 +73,7 @@ export default function DocumentsPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/documents/upload', {
+      const response = await fetch('http://localhost:8080/api/documents', {
         method: 'POST',
         body: formData,
         // headers są pomijane - FormData sam ustawia Content-Type z boundary

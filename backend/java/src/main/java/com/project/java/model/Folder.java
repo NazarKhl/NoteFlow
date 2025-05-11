@@ -1,11 +1,12 @@
 package com.project.java.model;
-import jakarta.persistence.*;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+
 @Entity
 @Table(name = "folder")
 public class Folder {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -13,13 +14,11 @@ public class Folder {
     private String name;
 
     @ManyToOne
-    @JsonBackReference 
+    @JsonManagedReference  // Umożliwia serializowanie obiektu project
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @OneToMany(mappedBy = "folder")
-    private List<Document> documents;
-
+    // Gettery i settery
     public Long getId() {
         return id;
     }
@@ -43,13 +42,4 @@ public class Folder {
     public void setProject(Project project) {
         this.project = project;
     }
-
-    public List<Document> getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(List<Document> documents) {
-        this.documents = documents;
-    }
-    
 }
