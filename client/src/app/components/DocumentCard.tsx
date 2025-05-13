@@ -56,7 +56,6 @@ export default function DocumentsPage() {
     }
   };
 
-  // Upload pliku
   const handleUpload = async () => {
     if (!selectedFile) {
       setError('Proszę wybrać plik');
@@ -76,7 +75,7 @@ export default function DocumentsPage() {
       const response = await fetch('http://localhost:8080/api/documents', {
         method: 'POST',
         body: formData,
-        // headers są pomijane - FormData sam ustawia Content-Type z boundary
+        // headers are omitted here as FormData will automatically set 'Content-Type'
       });
 
       if (!response.ok) {
@@ -84,10 +83,10 @@ export default function DocumentsPage() {
         throw new Error(errorData.message || 'Błąd podczas uploadu pliku');
       }
 
-      await fetchDocuments(searchQuery);
-      setSelectedFile(null);
-      setFolderId('');
-      // Reset input file
+      await fetchDocuments(searchQuery);  // Reload the document list
+      setSelectedFile(null);  // Reset the selected file
+      setFolderId('');        // Reset the folder input
+      // Reset the file input field
       const fileInput = document.getElementById('fileInput') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
     } catch (err) {
@@ -95,7 +94,7 @@ export default function DocumentsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+};
 
   // Usuwanie dokumentu
   const handleDelete = async (id: number) => {

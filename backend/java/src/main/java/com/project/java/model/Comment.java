@@ -1,7 +1,9 @@
 package com.project.java.model;
-import jakarta.persistence.*;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "comment")
 public class Comment {
@@ -18,47 +20,21 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "note_id")
+    @JsonIgnore
     private Note note;
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
 
-    public String getContent() {
-        return content;
-    }
+    public LocalDateTime getCreated_at() { return created_at; }
+    public void setCreated_at(LocalDateTime created_at) { this.created_at = created_at; }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Note getNote() {
-        return note;
-    }
-
-    public void setNote(Note note) {
-        this.note = note;
-    }
-
-    
+    public Note getNote() { return note; }
+    public void setNote(Note note) { this.note = note; }
 }
