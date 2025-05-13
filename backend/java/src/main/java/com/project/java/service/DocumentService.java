@@ -15,12 +15,18 @@ public class DocumentService {
     public DocumentService(DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
     }
+    
 
     @Transactional
     public Document uploadDocument(Document document) {
         document.setUpload_date(LocalDateTime.now());
         return documentRepository.save(document);
     }
+
+    public Document save(Document document) {
+        return documentRepository.save(document);
+    }
+    
 
     public List<Document> getAllDocuments() {
         return documentRepository.findAll();
