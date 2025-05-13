@@ -5,16 +5,11 @@ import { useState, useEffect } from 'react';
 type Document = {
   id: number;
   fileName: string;
-  filePath: string;
+  fileType: string;
+  fileData: string;
   upload_date: string;
-  user?: {
-    id: number;
-    username: string;
-  };
-  folder?: {
-    id: number;
-    name: string;
-  };
+  folderId?: number;
+  userId?: number;
 };
 
 export default function DocumentsPage() {
@@ -23,9 +18,7 @@ export default function DocumentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [folderId, setFolderId] = useState<string>('');
 
-  // Pobieranie dokumentów
   const fetchDocuments = async (query = '') => {
     setIsLoading(true);
     setError(null);
@@ -35,7 +28,7 @@ export default function DocumentsPage() {
         : 'http://localhost:8080/api/documents';
       
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Błąd ładowania dokumentów');
+      if (!response.ok) throw new Error('Błąd podczas ładowania dokumentów');
       const data = await response.json();
       setDocuments(data);
     } catch (err) {
@@ -49,11 +42,8 @@ export default function DocumentsPage() {
     fetchDocuments();
   }, []);
 
-  // Obsługa wyboru pliku
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
-    }
+    setSelectedFile(e.target.files?.[0] || null);
   };
 
   const handleUpload = async () => {
@@ -67,36 +57,29 @@ export default function DocumentsPage() {
 
     const formData = new FormData();
     formData.append('file', selectedFile);
-    if (folderId) {
-      formData.append('folderId', folderId);
-    }
 
     try {
-      const response = await fetch('http://localhost:8080/api/documents', {
+      const response = await fetch('http://localhost:8080/api/documents/upload', {
         method: 'POST',
         body: formData,
-        // headers are omitted here as FormData will automatically set 'Content-Type'
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Błąd podczas uploadu pliku');
+        throw new Error(errorData.message || 'Błąd podczas przesyłania pliku');
       }
 
-      await fetchDocuments(searchQuery);  // Reload the document list
-      setSelectedFile(null);  // Reset the selected file
-      setFolderId('');        // Reset the folder input
-      // Reset the file input field
-      const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
+      const newDocument = await response.json();
+      setDocuments([newDocument, ...documents]);
+      setSelectedFile(null);
+      (document.getElementById('fileInput') as HTMLInputElement).value = '';
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nieznany błąd podczas uploadu');
+      setError(err instanceof Error ? err.message : 'Nieznany błąd');
     } finally {
       setIsLoading(false);
     }
-};
+  };
 
-  // Usuwanie dokumentu
   const handleDelete = async (id: number) => {
     if (!confirm('Czy na pewno chcesz usunąć ten dokument?')) return;
 
@@ -106,9 +89,9 @@ export default function DocumentsPage() {
         method: 'DELETE',
       });
 
-      if (!response.ok) throw new Error('Błąd usuwania dokumentu');
-      
-      await fetchDocuments(searchQuery);
+      if (!response.ok) throw new Error('Błąd podczas usuwania');
+
+      setDocuments(documents.filter(doc => doc.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nieznany błąd');
     } finally {
@@ -116,18 +99,36 @@ export default function DocumentsPage() {
     }
   };
 
-  // Obsługa wyszukiwania
+  const handleDownload = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/documents/${id}/download`);
+      if (!response.ok) throw new Error('Błąd podczas pobierania');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      const doc = documents.find(d => d.id === id);
+      link.href = url;
+      link.setAttribute('download', doc?.fileName || 'dokument');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Błąd podczas pobierania');
+    }
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchDocuments(searchQuery);
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-6xl">
+    <div className="container mx-auto p-4 max-w-6xl bg-white text-black min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Zarządzanie dokumentami</h1>
 
-      {/* Formularz uploadu */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+      <div className="mb-6 p-4 bg-gray-100 rounded-lg border border-gray-300">
         <h2 className="text-xl font-semibold mb-3">Dodaj nowy dokument</h2>
         <div className="space-y-3">
           <div>
@@ -136,62 +137,49 @@ export default function DocumentsPage() {
               id="fileInput"
               type="file"
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500
+              className="block w-full text-sm text-black
                 file:mr-4 file:py-2 file:px-4
                 file:rounded file:border-0
                 file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
+                file:bg-green-500 file:text-white
+                hover:file:bg-green-600"
               disabled={isLoading}
             />
           </div>
-          
-          <div>
-            <label className="block mb-1">ID folderu (opcjonalne):</label>
-            <input
-              type="text"
-              value={folderId}
-              onChange={(e) => setFolderId(e.target.value)}
-              className="w-full p-2 border rounded"
-              placeholder="Wpisz ID folderu"
-              disabled={isLoading}
-            />
-          </div>
-          
+
           <button
             onClick={handleUpload}
             disabled={isLoading || !selectedFile}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition-colors"
           >
-            {isLoading ? 'Wysyłanie...' : 'Wyślij plik'}
+            {isLoading ? 'Wysyłanie...' : 'Prześlij dokument'}
           </button>
         </div>
       </div>
 
-      {/* Wyszukiwarka */}
       <form onSubmit={handleSearch} className="mb-6">
         <div className="flex gap-2">
           <input
             type="text"
-            placeholder="Wyszukaj dokumenty..."
+            placeholder="Szukaj dokumentów..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 p-2 border rounded"
+            className="flex-1 p-2 border border-gray-400 bg-white rounded focus:ring-2 focus:ring-green-500 text-black"
           />
-          <button 
-            type="submit" 
-            className="px-4 py-2 bg-blue-600 text-white rounded"
+          <button
+            type="submit"
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
             disabled={isLoading}
           >
             Szukaj
           </button>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => {
               setSearchQuery('');
               fetchDocuments();
             }}
-            className="px-4 py-2 bg-gray-200 rounded"
+            className="px-4 py-2 bg-gray-200 text-black rounded hover:bg-gray-300 transition-colors"
             disabled={isLoading}
           >
             Wyczyść
@@ -200,52 +188,40 @@ export default function DocumentsPage() {
       </form>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded border border-red-300">
           {error}
         </div>
       )}
 
-      {/* Lista dokumentów */}
       <div className="space-y-4">
         {isLoading ? (
-          <p className="text-center py-4">Ładowanie dokumentów...</p>
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-600 mb-2"></div>
+            <p className="text-black">Ładowanie dokumentów...</p>
+          </div>
         ) : documents.length === 0 ? (
-          <p className="text-center py-4">Brak dokumentów</p>
+          <p className="text-center py-8 text-black">Brak dokumentów</p>
         ) : (
           documents.map((doc) => (
-            <div key={doc.id} className="bg-white rounded-lg shadow p-4 border">
+            <div key={doc.id} className="bg-white rounded-lg shadow-md p-4 border border-gray-300 hover:shadow-lg transition-shadow">
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-xl font-semibold">{doc.fileName}</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Ścieżka: {doc.filePath}
-                  </p>
                   <div className="text-xs text-gray-500 mt-2">
-                    Data uploadu: {new Date(doc.upload_date).toLocaleString()}
+                    Data przesłania: {new Date(doc.upload_date).toLocaleString('pl-PL')}
                   </div>
-                  {doc.user && (
-                    <div className="text-xs text-gray-500">
-                      Użytkownik: {doc.user.username}
-                    </div>
-                  )}
-                  {doc.folder && (
-                    <div className="text-xs text-gray-500">
-                      Folder: {doc.folder.name} (ID: {doc.folder.id})
-                    </div>
-                  )}
                 </div>
                 <div className="flex space-x-2">
-                  <a 
-                    href={`http://localhost:8080${doc.filePath}`} 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1 bg-green-600 text-white rounded text-sm"
+                  <button
+                    onClick={() => handleDownload(doc.id)}
+                    className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+                    disabled={isLoading}
                   >
                     Pobierz
-                  </a>
+                  </button>
                   <button
                     onClick={() => handleDelete(doc.id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded text-sm"
+                    className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
                     disabled={isLoading}
                   >
                     Usuń

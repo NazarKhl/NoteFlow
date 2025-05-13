@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-    List<Document> findByFileNameContaining(String file_name);
+    List<Document> findByFileNameContaining(String query);
     List<Document> findByFolderId(Long folderId);
     List<Document> findByUserId(Long userId);
     @Query("SELECT d FROM Document d WHERE d.upload_date BETWEEN :start AND :end")

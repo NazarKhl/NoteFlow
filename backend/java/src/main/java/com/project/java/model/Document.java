@@ -16,6 +16,28 @@ public class Document {
     @Column(name = "filePath")
     private String filePath;
     private LocalDateTime upload_date;
+    @Lob
+    @Column(name = "file_data", columnDefinition = "LONGBLOB")
+    private byte[] fileData; 
+
+    @Column(name = "file_type")
+    private String fileType;
+
+    public byte[] getFileData() {
+        return fileData;
+    }
+    
+    public void setFileData(byte[] fileData) {
+        this.fileData = fileData;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
 
     @ManyToOne
     @JoinColumn(name = "user_id")
