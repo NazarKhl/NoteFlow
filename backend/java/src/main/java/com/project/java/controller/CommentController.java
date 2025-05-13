@@ -48,4 +48,11 @@ public class CommentController {
     public List<Comment> getRecentComments(@RequestParam(defaultValue = "7") int days) {
         return commentService.getRecentComments(days);
     }
+
+    @PostMapping("/note/{noteId}")
+    public ResponseEntity<Comment> addComment(@PathVariable Long noteId, @RequestBody Comment comment) {
+        return commentService.addCommentToNote(noteId, comment)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

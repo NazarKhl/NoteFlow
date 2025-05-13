@@ -1,276 +1,227 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
-type Folder = {
-  id: number;
-  name: string;
-  project?: {
-    id: number;
-    name: string;
-  };
-  documents?: Array<{
-    id: number;
-    fileName: string;
-  }>;
-};
+const DashboardPage = () => {
+  const [user, setUser] = useState<any>(null);
+  const [folders, setFolders] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [activeSection, setActiveSection] = useState<string>('folders');
+  const [newFolderName, setNewFolderName] = useState<string>('');
+  const [editFolderId, setEditFolderId] = useState<number | null>(null);
+  const [editFolderName, setEditFolderName] = useState<string>('');
+  const [selectedProject, setSelectedProject] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
-export default function FoldersPage() {
-  const [folders, setFolders] = useState<Folder[]>([]);
-  const [newFolder, setNewFolder] = useState({ name: '', projectId: '' });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editData, setEditData] = useState({ name: '', projectId: '' });
-
-  // Pobieranie folderów
-  const fetchFolders = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('http://localhost:8080/api/folders');
-      if (!response.ok) throw new Error('Błąd ładowania folderów');
-      const data = await response.json();
-      setFolders(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nieznany błąd');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const getToken = () => localStorage.getItem('token');
+  const removeToken = () => localStorage.removeItem('token');
 
   useEffect(() => {
-    fetchFolders();
-  }, []);
+    const fetchData = async () => {
+      try {
+        const token = getToken();
+        if (!token) {
+          router.push('/pages/login');
+          return;
+        }
 
-  // Tworzenie nowego folderu
-  const handleCreate = async () => {
-    if (!newFolder.name) {
-      setError('Nazwa folderu jest wymagana');
+        const [projectsResponse, foldersResponse, userResponse] = await Promise.all([
+          axios.get('http://localhost:8080/api/projects', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get('http://localhost:8080/api/folders', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get('http://localhost:8080/api/users/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        setProjects(projectsResponse.data);
+        setFolders(foldersResponse.data);
+        setUser(userResponse.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        router.push('/pages/login');
+      }
+    };
+
+    fetchData();
+  }, [router]);
+
+  const handleLogout = () => {
+    removeToken();
+    router.push('/pages/login');
+  };
+
+  const handleCreateFolder = async () => {
+    const token = getToken();
+    if (!token) {
+      router.push('/pages/login');
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
     try {
-      const folderToCreate = {
-        name: newFolder.name,
-        project: newFolder.projectId ? { id: Number(newFolder.projectId) } : null
-      };
-
-      const response = await fetch('http://localhost:8080/api/folders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(folderToCreate),
+      const newFolder = { name: newFolderName, projectId: selectedProject };
+      const response = await axios.post('http://localhost:8080/api/folders', newFolder, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!response.ok) throw new Error('Błąd tworzenia folderu');
-      
-      await fetchFolders();
-      setNewFolder({ name: '', projectId: '' });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nieznany błąd');
-    } finally {
-      setIsLoading(false);
+      setFolders([...folders, response.data]);
+      setNewFolderName('');
+      setSelectedProject(null);
+    } catch (error) {
+      console.error('Error creating folder:', error);
     }
   };
 
-  // Rozpoczęcie edycji
-  const startEditing = (folder: Folder) => {
-    setEditingId(folder.id);
-    setEditData({
-      name: folder.name,
-      projectId: folder.project?.id.toString() || ''
-    });
-  };
+  const handleEditFolder = async () => {
+    if (editFolderId === null) return;
 
-  // Anulowanie edycji
-  const cancelEditing = () => {
-    setEditingId(null);
-    setEditData({ name: '', projectId: '' });
-  };
-
-  // Zapisanie zmian
-  const handleUpdate = async () => {
-    if (!editData.name) {
-      setError('Nazwa folderu jest wymagana');
+    const token = getToken();
+    if (!token) {
+      router.push('/pages/login');
       return;
     }
 
-    if (!editingId) return;
-
-    setIsLoading(true);
-    setError(null);
     try {
-      const folderToUpdate = {
-        name: editData.name,
-        project: editData.projectId ? { id: Number(editData.projectId) } : null
-      };
-
-      const response = await fetch(`http://localhost:8080/api/folders/${editingId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(folderToUpdate),
+      const updatedFolder = { name: editFolderName, projectId: selectedProject };
+      const response = await axios.put(`http://localhost:8080/api/folders/${editFolderId}`, updatedFolder, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!response.ok) throw new Error('Błąd aktualizacji folderu');
-      
-      await fetchFolders();
-      setEditingId(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nieznany błąd');
-    } finally {
-      setIsLoading(false);
+      setFolders(folders.map(folder => folder.id === editFolderId ? response.data : folder));
+      setEditFolderId(null);
+      setEditFolderName('');
+      setSelectedProject(null);
+    } catch (error) {
+      console.error('Error updating folder:', error);
     }
   };
 
-  // Usuwanie folderu
-  const handleDelete = async (id: number) => {
-    if (!confirm('Czy na pewno chcesz usunąć ten folder?')) return;
+  const handleDeleteFolder = async (id: number) => {
+    const token = getToken();
+    if (!token) {
+      router.push('/login');
+      return;
+    }
 
-    setIsLoading(true);
-    setError(null);
     try {
-      const response = await fetch(`http://localhost:8080/api/folders/${id}`, {
-        method: 'DELETE',
+      await axios.delete(`http://localhost:8080/api/folders/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!response.ok) throw new Error('Błąd usuwania folderu');
-      
-      await fetchFolders();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nieznany błąd');
-    } finally {
-      setIsLoading(false);
+      setFolders(folders.filter(folder => folder.id !== id));
+    } catch (error) {
+      console.error('Error deleting folder:', error);
     }
   };
+
+  const handleEditClick = (id: number, name: string, projectId: number) => {
+    setEditFolderId(id);
+    setEditFolderName(name);
+    setSelectedProject(projectId);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gray-50">
+        <div className="animate-pulse flex space-x-4">
+          <div className="rounded-full h-12 w-12 bg-blue-400"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6">Zarządzanie folderami</h1>
+    <div className="min-h-screen w-[75vw] flex bg-gray-50">
+      <main className="flex-1 p-6 lg:p-8 ml-[0px]">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          {/* Folder Creation Form */}
+          <div className="mb-4">
+            <input
+              type="text"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Nowa nazwa folderu"
+              className="border p-2 rounded w-full text-black"
+            />
+            <select
+              value={selectedProject ?? ''}
+              onChange={(e) => setSelectedProject(Number(e.target.value))}
+              className="border p-2 rounded w-full mt-2 text-black"
+            >
+              <option value="">Wybierz projekt</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleCreateFolder}
+              className="mt-2 w-full p-2 bg-green-600 text-white rounded"
+            >
+              Stwórz folder
+            </button>
+          </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      {/* Formularz tworzenia */}
-      <div className="mb-8 p-4 bg-white rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-3">Nowy folder</h2>
-        <div className="space-y-3">
-          <input
-            type="text"
-            placeholder="Nazwa folderu"
-            value={newFolder.name}
-            onChange={(e) => setNewFolder({...newFolder, name: e.target.value})}
-            className="w-full p-2 border rounded"
-            disabled={isLoading}
-          />
-          <input
-            type="text"
-            placeholder="ID projektu (opcjonalne)"
-            value={newFolder.projectId}
-            onChange={(e) => setNewFolder({...newFolder, projectId: e.target.value})}
-            className="w-full p-2 border rounded"
-            disabled={isLoading}
-          />
-          <button
-            onClick={handleCreate}
-            disabled={isLoading || !newFolder.name}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isLoading ? 'Tworzenie...' : 'Dodaj folder'}
-          </button>
-        </div>
-      </div>
-
-      {/* Lista folderów */}
-      <div className="space-y-4">
-        {isLoading && folders.length === 0 ? (
-          <p className="text-center py-4">Ładowanie folderów...</p>
-        ) : folders.length === 0 ? (
-          <p className="text-center py-4">Brak folderów</p>
-        ) : (
-          folders.map((folder) => (
-            <div key={folder.id} className="bg-white rounded-lg shadow p-4">
-              {editingId === folder.id ? (
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    value={editData.name}
-                    onChange={(e) => setEditData({...editData, name: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    disabled={isLoading}
-                  />
-                  <input
-                    type="text"
-                    placeholder="ID projektu (opcjonalne)"
-                    value={editData.projectId}
-                    onChange={(e) => setEditData({...editData, projectId: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    disabled={isLoading}
-                  />
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      onClick={cancelEditing}
-                      className="px-3 py-1 bg-gray-300 rounded"
-                      disabled={isLoading}
-                    >
-                      Anuluj
-                    </button>
-                    <button
-                      onClick={handleUpdate}
-                      className="px-3 py-1 bg-green-600 text-white rounded"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Zapisywanie...' : 'Zapisz'}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h2 className="text-xl font-semibold">{folder.name}</h2>
-                      {folder.project && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          Projekt: {folder.project.name} (ID: {folder.project.id})
-                        </p>
-                      )}
-                      {folder.documents && folder.documents.length > 0 && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          Liczba dokumentów: {folder.documents.length}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => startEditing(folder)}
-                        className="px-3 py-1 bg-yellow-500 text-white rounded text-sm"
-                        disabled={isLoading}
-                      >
-                        Edytuj
-                      </button>
-                      <button
-                        onClick={() => handleDelete(folder.id)}
-                        className="px-3 py-1 bg-red-600 text-white rounded text-sm"
-                        disabled={isLoading}
-                      >
-                        Usuń
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
+          {/* Folder Edit Form */}
+          {editFolderId !== null && (
+            <div className="mb-4">
+              <input
+                type="text"
+                value={editFolderName}
+                onChange={(e) => setEditFolderName(e.target.value)}
+                className="border p-2 rounded w-full text-black"
+              />
+              <select
+                value={selectedProject ?? ''}
+                onChange={(e) => setSelectedProject(Number(e.target.value))}
+                className="border p-2 rounded w-full mt-2 text-black"
+              >
+                <option value="">Wybierz projekt</option>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleEditFolder}
+                className="mt-2 p-2 bg-yellow-600 text-white rounded text-black"
+              >
+                Edytuj folder
+              </button>
             </div>
-          ))
-        )}
-      </div>
+          )}
+
+          {/* Folders List */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-black">
+            {folders.map((folder) => (
+              <div key={folder.id} className="border p-4 rounded shadow-sm">
+                <h3 className="font-medium">{folder.name}</h3>
+                <p className="text-gray-500">Projekt: {folder.name}</p>
+                <button
+                  onClick={() => handleEditClick(folder.id, folder.name, folder.projectId)}
+                  className="mt-2 text-[#1e2939]"
+                >
+                  Edytuj
+                </button>
+                <button
+                  onClick={() => handleDeleteFolder(folder.id)}
+                  className="mt-2 ml-3 text-[#1e2939]"
+                >
+                  Usuń
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
     </div>
   );
-}
+};
+
+export default DashboardPage;

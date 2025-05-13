@@ -1,36 +1,40 @@
 package com.project.java.service;
+
 import com.project.java.model.Folder;
 import com.project.java.model.Project;
 import com.project.java.repo.FolderRepository;
 import com.project.java.repo.ProjectRepository;
+import com.project.java.repo.UserRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Date;
 import java.util.List;
+
 @Service
 public class ProjectService {
-
     private final ProjectRepository projectRepository;
     private final FolderRepository folderRepository;
+    private final UserRepository userRepository;
 
     public ProjectService(ProjectRepository projectRepository,
-                          FolderRepository folderRepository) {
+                         FolderRepository folderRepository, UserRepository userRepository) {
         this.projectRepository = projectRepository;
         this.folderRepository = folderRepository;
+        this.userRepository = userRepository;
     }
 
-    // TRANSAKCJA: usunięcie projektu i folderów
     @Transactional
     public void deleteProjectWithFolders(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
 
-        folderRepository.deleteByProject(project);  // Zakładając, że masz odpowiednią metodę w repozytorium
+        folderRepository.deleteByProject(project);
         projectRepository.delete(project);
     }
 
-    // TRANSAKCJA: klonowanie projektu z folderami
     @Transactional
     public Project cloneProjectWithFolders(Long projectId) {
         Project original = projectRepository.findById(projectId)
@@ -56,9 +60,14 @@ public class ProjectService {
 
     @Transactional
     public Project createProject(Project project) {
-        if (project.getUser() == null) {
-            throw new IllegalArgumentException("Project must have an owner");
+        if (project.getUser() == null || project.getUser().getId() == null) {
+            throw new IllegalArgumentException("Project must have an owner with valid ID");
         }
+        
+        if (!userRepository.existsById(project.getUser().getId())) {
+            throw new EntityNotFoundException("User not found with id: " + project.getUser().getId());
+        }
+        
         return projectRepository.save(project);
     }
 
@@ -67,7 +76,6 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    // Metoda getProjectById, którą dodajemy
     @Transactional(readOnly = true)
     public Project getProjectById(Long id) {
         return projectRepository.findById(id)
@@ -82,14 +90,16 @@ public class ProjectService {
                     existingProject.setDescription(projectDetails.getDescription());
                     existingProject.setStartDate(projectDetails.getStartDate());
                     existingProject.setEndDate(projectDetails.getEndDate());
+                    
                     if (projectDetails.getUser() != null) {
                         existingProject.setUser(projectDetails.getUser());
                     }
+                    
                     return projectRepository.save(existingProject);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id));
     }
-
+    
     @Transactional
     public void deleteProject(Long id) {
         if (!projectRepository.existsById(id)) {
@@ -98,7 +108,6 @@ public class ProjectService {
         projectRepository.deleteById(id);
     }
 
-    // Sortowanie i filtrowanie
     public List<Project> getProjectsSortedByName() {
         return projectRepository.findAll()
                 .stream()

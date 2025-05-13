@@ -39,9 +39,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/me").authenticated()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/documents").permitAll()
+                        .requestMatchers("/api/projects").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oaut2configurer -> oaut2configurer.jwt(Customizer.withDefaults()))

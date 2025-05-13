@@ -1,45 +1,40 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+
+type Comment = {
+  id: number;
+  content: string;
+  created_at: string;
+};
 
 type Note = {
   id: number;
-  comments?: {
-    id: number;
-    content: string;
-    // inne pola komentarza
-  }[];
-  roles?: {
-    id: number;
-    name: string;
-  }[];
+  title: string;
+  comments: Comment[];
 };
 
-export default function NotesPage() {
+export default function NoteCard() {
   const [notes, setNotes] = useState<Note[]>([]);
-  const [newNote, setNewNote] = useState<Partial<Note>>({});
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newNote, setNewNote] = useState('');
+  const [editNoteId, setEditNoteId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState('');
 
-  // Pobieranie notatek
-  const fetchNotes = async (keyword = '') => {
-    setIsLoading(true);
-    setError(null);
+  const fetchNotes = async () => {
+    setLoading(true);
     try {
-      const url = keyword
-        ? `http://localhost:8080/api/note/comment-keyword?kw=${encodeURIComponent(keyword)}`
-        : 'http://localhost:8080/api/note';
-      
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch notes');
-      const data = await response.json();
+      const res = await fetch('http://localhost:8080/api/note');
+      if (!res.ok) throw new Error('Błąd podczas ładowania notatek');
+      const data = await res.json();
       setNotes(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Nieznany błąd');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -47,208 +42,152 @@ export default function NotesPage() {
     fetchNotes();
   }, []);
 
-  // Tworzenie nowej notatki
   const handleCreate = async () => {
-    setIsLoading(true);
+    if (!newTitle.trim()) return;
     try {
-      const response = await fetch('http://localhost:8080/api/note', {
+      const res = await fetch('http://localhost:8080/api/note', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newNote),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newTitle,
+          comments: [],
+          roles: [],
+        }),
       });
-
-      if (!response.ok) throw new Error('Failed to create note');
-      
+      if (!res.ok) throw new Error('Nie udało się utworzyć notatki');
+      setNewTitle('');
+      setNewNote('');
       await fetchNotes();
-      setNewNote({});
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
+      setError(err instanceof Error ? err.message : 'Nieznany błąd');
     }
   };
 
-  // Aktualizacja notatki
-  const handleUpdate = async () => {
-    if (!editingNote) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`http://localhost:8080/api/note/${editingNote.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editingNote),
-      });
-
-      if (!response.ok) throw new Error('Failed to update note');
-      
-      await fetchNotes();
-      setEditingNote(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Usuwanie notatki
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this note?')) return;
-
-    setIsLoading(true);
+    if (!confirm('Czy na pewno chcesz usunąć tę notatkę?')) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/note/${id}`, {
+      const res = await fetch(`http://localhost:8080/api/note/${id}`, {
         method: 'DELETE',
       });
-
-      if (!response.ok) throw new Error('Failed to delete note');
-      
+      if (!res.ok) throw new Error('Błąd podczas usuwania');
       await fetchNotes();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
+      setError(err instanceof Error ? err.message : 'Nieznany błąd');
     }
   };
 
-  // Wyszukiwanie po słowie kluczowym w komentarzach
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchNotes(searchKeyword);
+  const handleUpdate = async () => {
+    if (!editTitle.trim() || editNoteId === null) return;
+    try {
+      const res = await fetch(`http://localhost:8080/api/note/${editNoteId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editTitle,
+          comments: [],
+          roles: [],
+        }),
+      });
+      if (!res.ok) throw new Error('Aktualizacja nie powiodła się');
+      setEditNoteId(null);
+      setEditTitle('');
+      setEditContent('');
+      await fetchNotes();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Nieznany błąd');
+    }
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6">Notes Management</h1>
+<div className="text-black">
+  {error && <p className="text-red-600 mb-4">{error}</p>}
 
-      {/* Wyszukiwarka */}
-      <form onSubmit={handleSearch} className="mb-6">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search by comment keyword..."
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            className="flex-1 p-2 border rounded"
-          />
-          <button 
-            type="submit" 
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-            disabled={isLoading}
-          >
-            Search
-          </button>
-          <button 
-            type="button" 
-            onClick={() => {
-              setSearchKeyword('');
-              fetchNotes();
-            }}
-            className="px-4 py-2 bg-gray-200 rounded"
-            disabled={isLoading}
-          >
-            Clear
-          </button>
-        </div>
-      </form>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      {/* Formularz tworzenia/edycji */}
-      <div className="mb-8 p-4 bg-white rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-3">
-          {editingNote ? 'Edit Note' : 'Create New Note'}
-        </h2>
-        <div className="space-y-3">
-          {/* Tutaj możesz dodać pola formularza w zależności od potrzeb */}
-          <p className="text-gray-500">Note form fields would go here</p>
-          
-          <div className="flex justify-end space-x-2">
-            {editingNote && (
-              <button
-                onClick={() => setEditingNote(null)}
-                className="px-3 py-1 bg-gray-300 rounded"
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-            )}
-            <button
-              onClick={editingNote ? handleUpdate : handleCreate}
-              className="px-3 py-1 bg-green-600 text-white rounded"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Processing...' : editingNote ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </div>
-      </div>
+  {/* Nowa notatka */}
+  <div className="mb-6 w-[1100px] bg-white p-4 rounded-lg shadow flex items-center justify-between">
+    <h2 className="text-lg font-semibold mb-2">Utwórz Notatkę</h2>
+    <div className="w-full flex space-x-4 items-center">
+      <input
+        type="text"
+        placeholder="Tytuł notatki"
+        value={newTitle}
+        onChange={(e) => setNewTitle(e.target.value)}
+        className="w-full p-2 border rounded mb-2"
+      />
+      <button
+        onClick={handleCreate}
+        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+      >
+        Dodaj
+      </button>
+    </div>
+  </div>
 
       {/* Lista notatek */}
-      <div className="space-y-4">
-        {isLoading ? (
-          <p className="text-center py-4">Loading notes...</p>
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+        {loading ? (
+          <p>Ładowanie...</p>
         ) : notes.length === 0 ? (
-          <p className="text-center py-4">No notes found</p>
+          <p>Brak notatek</p>
         ) : (
           notes.map((note) => (
             <div key={note.id} className="bg-white rounded-lg shadow p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-semibold">Note #{note.id}</h2>
-                  
-                  {/* Komentarze */}
-                  {note.comments && note.comments.length > 0 && (
-                    <div className="mt-2">
-                      <h3 className="font-medium">Comments:</h3>
-                      <ul className="list-disc pl-5">
-                        {note.comments.map(comment => (
-                          <li key={comment.id}>{comment.content}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {/* Role */}
-                  {note.roles && note.roles.length > 0 && (
-                    <div className="mt-2">
-                      <h3 className="font-medium">Roles:</h3>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {note.roles.map(role => (
-                          <span key={role.id} className="px-2 py-1 bg-gray-100 rounded text-sm">
-                            {role.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setEditingNote(note)}
-                    className="px-3 py-1 bg-yellow-500 text-white rounded text-sm"
-                    disabled={isLoading}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(note.id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded text-sm"
-                    disabled={isLoading}
-                  >
-                    Delete
-                  </button>
-                </div>
+              <h3 className="text-xl font-bold mb-1">{note.title}</h3>
+              <p className="text-sm text-gray-400 mb-3">ID: {note.id}</p>
+
+              <div className="mb-3">
+                <h4 className="font-semibold text-gray-700">Komentarze:</h4>
+                {note.comments.length === 0 ? (
+                  <p className="text-sm text-gray-500">Brak komentarzy</p>
+                ) : (
+                  <ul className="list-disc pl-5">
+                    {note.comments.map((comment) => (
+                      <li key={comment.id}>
+                        <p className="text-sm">{comment.content}</p>
+                        <span className="text-xs text-gray-400">
+                          {new Date(comment.created_at).toLocaleString()}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+
+              {/* Akcje */}
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => {
+                    setEditNoteId(note.id);
+                    setEditTitle(note.title);
+                  }}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                >
+                  Edytuj
+                </button>
+                <button
+                  onClick={() => handleDelete(note.id)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                >
+                  Usuń
+                </button>
+              </div>
+
+              {editNoteId === note.id && (
+                <div className="mt-4">
+                  <input
+                    type="text"
+                    placeholder="Nowy tytuł"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <button
+                    onClick={handleUpdate}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                  >
+                    Zapisz zmiany
+                  </button>
+                </div>
+              )}
             </div>
           ))
         )}

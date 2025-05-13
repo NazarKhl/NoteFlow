@@ -1,35 +1,41 @@
 package com.project.java.controller;
- import com.project.java.model.Folder;
- import com.project.java.service.FolderService;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import com.project.java.DTO.FolderDTO;
+import com.project.java.service.FolderService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/api/folders")
 public class FolderController {
-    @Autowired
-    private FolderService folderService;
+
+    private final FolderService folderService;
+
+    public FolderController(FolderService folderService) {
+        this.folderService = folderService;
+    }
 
     @GetMapping
-    public List<Folder> getAll() {
+    public List<FolderDTO> getAll() {
         return folderService.getAllFolders();
     }
 
     @GetMapping("/{id}")
-    public Folder getById(@PathVariable Long id) {
+    public FolderDTO getById(@PathVariable Long id) {
         return folderService.getFolderById(id);
     }
 
-    @PostMapping
-    public Folder create(@RequestBody Folder folder) {
-        return folderService.saveFolder(folder);
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public FolderDTO create(@RequestBody FolderDTO folderDTO) {
+        return folderService.saveFolder(folderDTO);
     }
 
     @PutMapping("/{id}")
-    public Folder update(@PathVariable Long id, @RequestBody Folder folder) {
-        folder.setId(id);
-        return folderService.saveFolder(folder);
+    public FolderDTO update(@PathVariable Long id, @RequestBody FolderDTO folderDTO) {
+        folderDTO.setId(id);
+        return folderService.saveFolder(folderDTO);
     }
 
     @DeleteMapping("/{id}")

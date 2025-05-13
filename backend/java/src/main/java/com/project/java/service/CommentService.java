@@ -3,20 +3,26 @@ package com.project.java.service;
 
 import com.project.java.model.Comment;
 import com.project.java.repo.CommentRepository;
+import com.project.java.repo.NoteRepository;
+
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentService {
     
     private final CommentRepository commentRepository;
+     private final NoteRepository noteRepo;
 
-    public CommentService(CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
+     public CommentService(CommentRepository commentRepo, NoteRepository noteRepo) {
+        this.commentRepository = commentRepo;
+        this.noteRepo = noteRepo;
     }
 
+    
     @Transactional
     public Comment createComment(Comment comment) {
         comment.setCreated_at(LocalDateTime.now());
@@ -47,5 +53,13 @@ public class CommentService {
     public List<Comment> getRecentComments(int days) {
         LocalDateTime date = LocalDateTime.now().minusDays(days);
         return commentRepository.findRecentComments(date);
+    }
+
+    public Optional<Comment> addCommentToNote(Long noteId, Comment comment) {
+        return noteRepo.findById(noteId).map(note -> {
+            comment.setNote(note);
+            comment.setCreated_at(LocalDateTime.now());
+            return commentRepository.save(comment);
+        });
     }
 }

@@ -5,7 +5,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 public abstract class BaseController<T, ID> {
 
@@ -13,9 +16,12 @@ public abstract class BaseController<T, ID> {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
-        String username = jwt.getSubject(); 
-        return ResponseEntity.ok("Zalogowany użytkownik: " + username);
+        String username = jwt.getSubject();
+        Map<String, String> response = new HashMap<>();
+        response.put("username", username);
+        return ResponseEntity.ok(response);
     }
+
     
 
     @GetMapping

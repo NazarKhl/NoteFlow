@@ -139,8 +139,8 @@ const DashboardPage = () => {
       <main className="flex-1 p-6 lg:p-8 ml-[250px]"> {/* Zmiana tutaj, dodajemy margines 40px */}
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-2xl font-light text-gray-800">Witaj <span className="font-medium">{user.username}</span></h1>
-            {/* <p className="text-sm text-gray-500 mt-1">Dziś jest {new Date().toLocaleDateString('pl-PL')}</p> */}
+            <h1 className="text-2xl font-light text-gray-800">Witaj<span className="font-medium"><p className="text-sm text-gray-500 mt-1">@{user.username}</p></span></h1>
+            
           </div>
           <button 
             onClick={handleLogout} 
