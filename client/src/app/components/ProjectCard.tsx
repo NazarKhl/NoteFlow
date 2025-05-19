@@ -290,20 +290,30 @@ export default function ProjectsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchProjects = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('http://localhost:8080/api/projects');
-      if (!response.ok) throw new Error('Błąd pobierania projektów');
-      const data = await response.json();
-      setProjects(data);
-    } catch (err) {
-      setError('Nie udało się załadować projektów');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const token = localStorage.getItem("token");
+
+  setIsLoading(true);
+  setError(null);
+  try {
+    const response = await fetch('http://localhost:8080/api/projects', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) throw new Error('Błąd pobierania projektów');
+
+    const data = await response.json();
+    setProjects(data);
+  } catch (err) {
+    setError('Nie udało się załadować projektów');
+    console.error(err);
+  } finally {
+    setIsLoading(false);
+  }
+}, []);
+
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -322,6 +332,10 @@ export default function ProjectsPage() {
   }, [fetchProjects, fetchUsers]);
 
   const handleCreateProject = async () => {
+
+    const token = localStorage.getItem("token");
+
+
     if (newProject.userId === 0) {
       setError('Proszę wybrać właściciela projektu');
       return;
@@ -333,6 +347,7 @@ export default function ProjectsPage() {
       const res = await fetch('http://localhost:8080/api/projects', {
         method: 'POST',
         headers: {
+          "Authorization": `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(newProject),
@@ -353,13 +368,19 @@ export default function ProjectsPage() {
     }
   };
 
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+
   const handleEditProject = async (id: number, updated: ProjectFormData) => {
+    const token = localStorage.getItem("token");
     setIsLoading(true);
     setError(null);
     try {
       const res = await fetch(`http://localhost:8080/api/projects/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' ,
+                    "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify(updated)
       });
       
@@ -378,6 +399,7 @@ export default function ProjectsPage() {
   };
 
   const handleDeleteProject = async (id: number) => {
+    
     setIsLoading(true);
     setError(null);
     try {

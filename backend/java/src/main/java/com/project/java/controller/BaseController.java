@@ -1,8 +1,10 @@
 package com.project.java.controller;
+import com.project.java.repo.UserRepository;
 import com.project.java.service.BaseService;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,13 +16,27 @@ public abstract class BaseController<T, ID> {
 
     protected abstract BaseService<T, ID> getBaseService();
 
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
-        String username = jwt.getSubject();
-        Map<String, String> response = new HashMap<>();
-        response.put("username", username);
-        return ResponseEntity.ok(response);
-    }
+@Autowired
+private UserRepository userRepository;
+
+@GetMapping("/me")
+public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+    String username = jwt.getSubject();
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("username", username);
+
+    userRepository.findByUsername(username).ifPresent(user -> {
+        List<String> roles = user.getRoles().stream()
+                                 .map(role -> role.getName())
+                                 .toList();
+        response.put("roles", roles);
+    });
+
+    return ResponseEntity.ok(response);
+}
+
+
 
     
 
