@@ -33,6 +33,7 @@ public class User extends Person {
     @JsonIgnore
     private List<Project> projects;
 
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_roles",

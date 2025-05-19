@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -25,7 +26,7 @@ public class ProjectController {
         this.projectService = projectService;
         this.userRepository = userRepository;
     }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Project> getAll() {
         return projectService.getAllProjects();

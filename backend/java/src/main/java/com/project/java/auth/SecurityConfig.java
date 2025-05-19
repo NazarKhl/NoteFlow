@@ -2,6 +2,7 @@ package com.project.java.auth;
 import com.project.java.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -42,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/documents").permitAll()
-                        .requestMatchers("/api/projects").hasRole("ADMIN")
+                        //  .requestMatchers("/api/projects/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oaut2configurer -> oaut2configurer.jwt(Customizer.withDefaults()))
